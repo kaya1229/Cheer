@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCT Online Lightstick - WALK Edition</title>
+    <title>NCT Online Lightstick - Fast Response</title>
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
         .header { width: 100%; max-width: 360px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
@@ -46,7 +46,7 @@
     <div class="controls">
         <input type="text" id="userInput" placeholder="문구 입력" value="삐그덕 삐그덕 걷지 우리 방식대로">
         <button id="playBtn" onclick="togglePlay()">시작 (WALK!)</button>
-        <div id="loadStatus" class="song-status">음악 데이터를 불러오는 중...</div>
+        <div id="loadStatus" class="song-status">음악을 불러오는 중... (전광판은 즉시 가능)</div>
     </div>
 
     <audio id="audioPlayer" loop crossorigin="anonymous"></audio>
@@ -55,23 +55,24 @@
         let interval;
         let isPlaying = false;
         let currentIndex = 0;
-        const currentBpm = 92; // '삐그덕 (Walk)'의 BPM
+        const currentBpm = 92; // '삐그덕 (Walk)' 고정 BPM
         const audio = document.getElementById('audioPlayer');
+        let musicReady = false;
 
-        // 페이지 로드 시 '삐그덕 (Walk)'를 자동으로 검색해서 세팅
+        // 페이지 로드 시 음악 검색 (비동기)
         window.onload = function() {
             const script = document.createElement('script');
             script.src = `https://itunes.apple.com/search?term=NCT+127+Walk&entity=song&limit=1&callback=initSong`;
             document.body.appendChild(script);
         };
 
-        // 검색된 곡을 오디오에 자동 연결
         window.initSong = function(data) {
             if (data.results && data.results.length > 0) {
                 audio.src = data.results[0].previewUrl;
-                document.getElementById('loadStatus').innerText = "✅ '삐그덕 (Walk)' 준비 완료!";
+                musicReady = true;
+                document.getElementById('loadStatus').innerText = "✅ 음악 로드 완료!";
             } else {
-                document.getElementById('loadStatus').innerText = "⚠️ 음원을 불러오지 못했습니다. (재시도 필요)";
+                document.getElementById('loadStatus').innerText = "⚠️ 음악 로드 실패 (전광판만 작동)";
             }
         };
 
@@ -80,28 +81,32 @@
             const text = document.getElementById('userInput').value.replace(/\s/g, '').split('');
 
             if (isPlaying) {
+                // 정지 로직
                 clearInterval(interval);
                 audio.pause();
                 btn.innerText = "시작 (WALK!)";
                 btn.classList.remove('playing');
                 isPlaying = false;
             } else {
-                if (!audio.src) {
-                    alert("아직 노래 데이터가 로드되지 않았습니다. 잠시만 기다려주세요!");
-                    return;
-                }
-                
-                audio.play();
+                // 시작 로직 (음악 준비 여부와 상관없이 즉시 실행)
+                isPlaying = true;
+                btn.innerText = "정지";
+                btn.classList.add('playing');
+
+                // 1. 전광판 애니메이션 즉시 시작
                 const ms = 60000 / currentBpm;
-                
+                document.getElementById('display').innerText = text[currentIndex];
+                currentIndex = (currentIndex + 1) % text.length;
+
                 interval = setInterval(() => {
                     document.getElementById('display').innerText = text[currentIndex];
                     currentIndex = (currentIndex + 1) % text.length;
                 }, ms);
 
-                btn.innerText = "정지";
-                btn.classList.add('playing');
-                isPlaying = true;
+                // 2. 음악 재생 (준비되었다면)
+                if (musicReady) {
+                    audio.play().catch(e => console.log("음악 재생 대기 중..."));
+                }
             }
         }
     </script>
