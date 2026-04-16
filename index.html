@@ -3,24 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCT Online Lightstick - Fast Response</title>
+    <title>NCT Online Lightstick - WALK Edition</title>
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
-        .header { width: 100%; max-width: 360px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
-        .info { font-size: 14px; color: #333; line-height: 1.6; font-weight: bold; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; transition: background 0.1s; }
+        .header { width: 100%; max-width: 360px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; text-align: center; }
+        .info { font-size: 14px; color: #333; font-weight: bold; }
         
-        /* 믐먼봉 정교한 실루엣 UI */
-        .meummonbong-frame { position: relative; width: 250px; height: 350px; margin: 20px 0; }
+        /* --- 핵심: 믐먼봉 정교한 실루엣 UI (첨부 이미지 비율 반영) --- */
+        .meummonbong-frame {
+            position: relative;
+            width: 260px; /* 실제 이미지 비율 고려 */
+            height: 380px;
+            margin: 20px 0;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* 믐먼봉의 특징적인 외부 절개 라인 */
         .meummonbong-shape {
-            width: 100%; height: 100%; background: #F3FFD5; position: absolute;
-            clip-path: polygon(0% 12%, 36% 12%, 36% 0%, 64% 0%, 64% 12%, 100% 12%, 100% 32%, 92% 32%, 92% 48%, 100% 48%, 100% 90%, 94% 100%, 6% 100%, 0% 90%, 0% 48%, 8% 48%, 8% 32%, 0% 32%);
+            width: 100%; height: 100%;
+            background: #F3FFD5; /* 이미지의 연한 네온 연두색 */
+            position: absolute; top: 0; left: 0;
+            
+            /* CSS clip-path로 입체적인 각진 형태 구현 */
+            clip-path: polygon(
+                /* 상단 각 */ 10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%,
+                /* 내부 구멍: 발광 효과 시 선명도를 높이기 위함 */
+                2% 10%, 2% 90%, 90% 98%, 98% 90%, 98% 10%, 90% 2%, 10% 2%
+            );
         }
-        .glow-effect {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 140%; height: 140%; background: radial-gradient(circle, rgba(206, 241, 61, 0.4) 0%, rgba(206, 241, 61, 0) 70%);
-            filter: blur(20px);
+
+        /* 중앙 글자 영역 (image_2.png 폰트 느낌 반영) */
+        .display-area {
+            position: relative;
+            z-index: 2;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            width: 80%; height: 80%;
+            border-radius: 12px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            transition: box-shadow 0.1s, background 0.1s;
         }
-        .display-char { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 130px; font-weight: 900; color: #000; z-index: 2; }
+
+        .display-char {
+            font-size: 140px; /* 큼직하게 */
+            font-weight: 800; /* 아주 굵게 */
+            color: #000;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* 글자 주변 미세한 빛 */
+        }
 
         /* 컨트롤 영역 */
         .controls { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
@@ -30,23 +58,35 @@
         #playBtn.playing { background: #ff4d4d; color: #fff; }
         
         .song-status { font-size: 13px; color: #666; text-align: center; margin-top: 5px; }
+
+        /* --- 발광 애니메이션 (BPM에 맞춰 Pulse) --- */
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 0 rgba(206, 241, 61, 0); background-color: transparent; }
+            50% { box-shadow: 0 0 30px rgba(206, 241, 61, 0.8); background-color: #CEF13D; }
+            100% { box-shadow: 0 0 0 rgba(206, 241, 61, 0); background-color: transparent; }
+        }
+
+        /* 발광 시 화면 전체와 프레임에 적용 */
+        .body-pulse { background: radial-gradient(circle, rgba(206, 241, 61, 0.3) 0%, rgba(206, 241, 61, 0) 70%) !important; }
+        .frame-pulse .display-area { animation: glowPulse 0.1s ease-out; }
     </style>
 </head>
-<body>
+<body id="lightstickBody">
 
     <div class="header">
         <div class="info">🎵 Now Playing: NCT 127 - 삐그덕 (Walk)</div>
     </div>
 
-    <div class="meummonbong-frame">
-        <div class="meummonbong-shape"><div class="glow-effect"></div></div>
-        <div id="display" class="display-char">W</div>
+    <div id="lightstickFrame" class="meummonbong-frame">
+        <div class="meummonbong-shape"></div> <div class="display-area">
+            <div id="display" class="display-char">W</div>
+        </div>
     </div>
 
     <div class="controls">
-        <input type="text" id="userInput" placeholder="문구 입력" value="삐그덕 삐그덕 걷지 우리 방식대로">
+        <input type="text" id="userInput" placeholder="문구 입력" value="삐그덕 삐그덕 걷지 우리 방식대로 가">
         <button id="playBtn" onclick="togglePlay()">시작 (WALK!)</button>
-        <div id="loadStatus" class="song-status">음악을 불러오는 중... (전광판은 즉시 가능)</div>
+        <div id="loadStatus" class="song-status">음악 데이터를 불러오는 중...</div>
     </div>
 
     <audio id="audioPlayer" loop crossorigin="anonymous"></audio>
@@ -57,6 +97,8 @@
         let currentIndex = 0;
         const currentBpm = 92; // '삐그덕 (Walk)' 고정 BPM
         const audio = document.getElementById('audioPlayer');
+        const frame = document.getElementById('lightstickFrame');
+        const body = document.getElementById('lightstickBody');
         let musicReady = false;
 
         // 페이지 로드 시 음악 검색 (비동기)
@@ -78,7 +120,8 @@
 
         function togglePlay() {
             const btn = document.getElementById('playBtn');
-            const text = document.getElementById('userInput').value.replace(/\s/g, '').split('');
+            const rawText = document.getElementById('userInput').value;
+            const text = rawText.split(''); // 공백 포함하여 한 글자씩 분리
 
             if (isPlaying) {
                 // 정지 로직
@@ -86,12 +129,15 @@
                 audio.pause();
                 btn.innerText = "시작 (WALK!)";
                 btn.classList.remove('playing');
+                body.classList.remove('body-pulse');
+                frame.classList.remove('frame-pulse');
                 isPlaying = false;
             } else {
                 // 시작 로직 (음악 준비 여부와 상관없이 즉시 실행)
                 isPlaying = true;
                 btn.innerText = "정지";
                 btn.classList.add('playing');
+                frame.classList.add('frame-pulse'); // 발광 애니메이션 시작
 
                 // 1. 전광판 애니메이션 즉시 시작
                 const ms = 60000 / currentBpm;
@@ -101,6 +147,10 @@
                 interval = setInterval(() => {
                     document.getElementById('display').innerText = text[currentIndex];
                     currentIndex = (currentIndex + 1) % text.length;
+                    
+                    // 발광 효과 트리거 (배경과 프레임)
+                    body.classList.add('body-pulse');
+                    setTimeout(() => body.classList.remove('body-pulse'), 50); // 짧게 발광 후 제거
                 }, ms);
 
                 // 2. 음악 재생 (준비되었다면)
