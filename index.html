@@ -3,176 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCT Online Lightstick - WALK Edition</title>
+    <title>NCT MeumMonBong UI</title>
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; transition: background 0.1s; }
-        .header { width: 100%; max-width: 360px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; text-align: left; }
-        .info { font-size: 14px; color: #333; line-height: 1.6; font-weight: bold; }
-        
-        /* --- 핵심: 믐먼봉 틀 완벽 복사 (image_5.png 형태 및 질감 반영) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@900&display=swap');
+
+        body {
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        /* 믐뭔봉 전체 컨테이너 */
+        .lightstick-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* [핵심] 믐뭔봉 외곽 틀 - 이미지의 상단/측면 굴곡 재현 */
         .meummonbong-frame {
-            position: relative;
-            width: 250px; /* 실제 이미지 비율 고려 */
-            height: 350px;
-            margin: 20px 0;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        /* 믐먼봉의 특징적인 외부 절개 라인 */
-        .meummonbong-shape {
-            width: 100%; height: 100%;
-            background: #F3FFD5; /* 이미지의 연한 네온 연두색 */
-            position: absolute; top: 0; left: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            /* 가장자리로 갈수록 진해지는 네오 그린 그라데이션 */
+            background: radial-gradient(circle, #faffd1 20%, #e8ff8c 60%, #cef13d 100%);
             
-            /* CSS clip-path로 입체적인 각진 형태 구현 */
+            /* 이미지와 동일한 실루엣을 위한 정교한 커팅 */
             clip-path: polygon(
-                /* 상단 각 */ 10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%,
-                /* 내부 구멍: 발광 효과 시 선명도를 높이기 위함 */
-                2% 10%, 2% 90%, 90% 98%, 98% 90%, 98% 10%, 90% 2%, 10% 2%
+                30% 0%, 70% 0%, 75% 5%, 85% 5%, 95% 15%, 95% 25%, 100% 30%, 100% 70%, 95% 75%, 95% 85%, 85% 95%, 75% 95%, 70% 100%, 30% 100%, 25% 95%, 15% 95%, 5% 85%, 5% 75%, 0% 70%, 0% 30%, 5% 25%, 5% 15%, 15% 5%, 25% 5%
             );
-        }
-
-        /* 내부 Glow 효과 (부드러운 빛 퍼짐) */
-        .glow-effect {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 150%; height: 150%;
-            background: radial-gradient(circle, rgba(206, 241, 61, 0.4) 10%, rgba(206, 241, 61, 0) 60%);
-            filter: blur(15px);
-        }
-
-        /* 중앙 글자 영역 (image_5.png의 '가' 글자 느낌 반영) */
-        .display-area {
-            position: relative;
-            z-index: 2;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            width: 75%; height: 75%;
-            background: rgba(255, 255, 255, 0.1); /* 미세한 투명도 */
-            border-radius: 12px;
             
-            /* 내부 Glow 효과 */
-            box-shadow: inset 0 0 15px rgba(206, 241, 61, 0.2);
+            /* 틀 자체가 발광하는 듯한 부드러운 외곽 빛 효과 */
+            filter: drop-shadow(0 0 15px rgba(206, 241, 61, 0.6));
         }
 
-        .display-char {
-            font-size: 130px; /* 큼직하게 */
-            font-weight: 800; /* 아주 굵게 */
-            color: #000;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); /* 글자 주변 미세한 빛 */
+        /* 가장자리에서 밖으로 더 뻗어나가는 추가 광원 효과 */
+        .glow-spread {
+            position: absolute;
+            width: 110%;
+            height: 110%;
+            background: radial-gradient(circle, rgba(206, 241, 61, 0.4) 0%, rgba(206, 241, 61, 0) 70%);
+            z-index: -1;
+            filter: blur(20px);
         }
 
-        /* 컨트롤 영역 */
-        .controls { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
-        input { padding: 15px; border-radius: 12px; border: 1px solid #ddd; font-size: 16px; text-align: center; }
-        button { padding: 16px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 18px; transition: 0.2s; }
-        #playBtn { background: #000; color: #CEF13D; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        #playBtn.playing { background: #ff4d4d; color: #fff; }
-        
-        .song-status { font-size: 13px; color: #666; text-align: center; margin-top: 5px; }
-
-        /* --- 발광 애니메이션 (BPM에 맞춰 Pulse) --- */
-        @keyframes glowPulse {
-            0% { box-shadow: 0 0 0 rgba(206, 241, 61, 0); background-color: transparent; }
-            50% { box-shadow: 0 0 30px rgba(206, 241, 61, 0.8); background-color: #CEF13D; }
-            100% { box-shadow: 0 0 0 rgba(206, 241, 61, 0); background-color: transparent; }
+        /* 중앙 글자 '가' - 이미지 폰트 스타일 재현 */
+        .display-text {
+            position: relative;
+            z-index: 10;
+            font-size: 150px;
+            font-weight: 900;
+            color: #000000;
+            letter-spacing: -5px;
+            /* 텍스트가 묻히지 않도록 아주 미세한 흰색 광택 추가 */
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
         }
 
-        /* 발광 시 화면 전체와 프레임에 적용 */
-        .body-pulse { background: radial-gradient(circle, rgba(206, 241, 61, 0.3) 0%, rgba(206, 241, 61, 0) 70%) !important; }
-        .frame-pulse .display-area { animation: glowPulse 0.1s ease-out; }
+        /* 92 BPM 박자에 맞춘 미세한 숨쉬기 효과 (눈이 아프지 않은 정도) */
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.95; }
+        }
+
+        .active-glow {
+            animation: breathe 0.65s infinite ease-in-out; /* 92 BPM 기준 */
+        }
     </style>
 </head>
-<body id="lightstickBody">
+<body>
 
-    <div class="header">
-        <div class="info">🎵 Now Playing: NCT 127 - 삐그덕 (Walk)</div>
+    <div class="lightstick-container active-glow">
+        <div class="glow-spread"></div>
+        <div class="meummonbong-frame"></div>
+        <div class="display-text">가</div>
     </div>
 
-    <div id="lightstickFrame" class="meummonbong-frame">
-        <div class="meummonbong-shape">
-            <div class="glow-effect"></div> </div>
-        <div class="display-area">
-            <div id="display" class="display-char">W</div>
-        </div>
-    </div>
-
-    <div class="controls">
-        <input type="text" id="userInput" placeholder="문구 입력" value="우리 평생 함께하자 시즈니 가">
-        <button id="playBtn" onclick="togglePlay()">시작 (WALK!)</button>
-        <div id="loadStatus" class="song-status">음악 데이터를 불러오는 중... (전광판은 즉시 가능) }</div>
-    </div>
-
-    <audio id="audioPlayer" loop crossorigin="anonymous"></audio>
-
-    <script>
-        let interval;
-        let isPlaying = false;
-        let currentIndex = 0;
-        const currentBpm = 92; // '삐그덕 (Walk)' 고정 BPM
-        const audio = document.getElementById('audioPlayer');
-        const frame = document.getElementById('lightstickFrame');
-        const body = document.getElementById('lightstickBody');
-        let musicReady = false;
-
-        // 페이지 로드 시 '삐그덕 (Walk)'를 자동으로 검색해서 세팅
-        window.onload = function() {
-            const script = document.createElement('script');
-            script.src = `https://itunes.apple.com/search?term=NCT+127+Walk&entity=song&limit=1&callback=initSong`;
-            document.body.appendChild(script);
-        };
-
-        // 검색된 곡을 오디오에 자동 연결
-        window.initSong = function(data) {
-            if (data.results && data.results.length > 0) {
-                audio.src = data.results[0].previewUrl;
-                musicReady = true;
-                document.getElementById('loadStatus').innerText = "✅ 음악 로드 완료!";
-            } else {
-                document.getElementById('loadStatus').innerText = "⚠️ 음악 로드 실패 (전광판만 작동)";
-            }
-        };
-
-        function togglePlay() {
-            const btn = document.getElementById('playBtn');
-            const rawText = document.getElementById('userInput').value;
-            const text = rawText.split(''); // 공백 포함하여 한 글자씩 분리
-
-            if (isPlaying) {
-                // 정지 로직
-                clearInterval(interval);
-                audio.pause();
-                btn.innerText = "시작 (WALK!)";
-                btn.classList.remove('playing');
-                body.classList.remove('body-pulse');
-                frame.classList.remove('frame-pulse');
-                isPlaying = false;
-            } else {
-                // 시작 로직 (음악 준비 여부와 상관없이 즉시 실행)
-                isPlaying = true;
-                btn.innerText = "정지";
-                btn.classList.add('playing');
-                frame.classList.add('frame-pulse'); // 발광 애니메이션 시작
-
-                // 1. 전광판 애니메이션 즉시 시작
-                const ms = 60000 / currentBpm;
-                document.getElementById('display').innerText = text[currentIndex];
-                currentIndex = (currentIndex + 1) % text.length;
-
-                interval = setInterval(() => {
-                    document.getElementById('display').innerText = text[currentIndex];
-                    currentIndex = (currentIndex + 1) % text.length;
-                    
-                    // 발광 효과 트리거 (배경과 프레임)
-                    body.classList.add('body-pulse');
-                    setTimeout(() => body.classList.remove('body-pulse'), 50); // 짧게 발광 후 제거
-                }, ms);
-
-                // 2. 음악 재생 (준비되었다면)
-                if (musicReady) {
-                    audio.play().catch(e => console.log("음악 재생 대기 중..."));
-                }
-            }
-        }
-    </script>
 </body>
 </html>
