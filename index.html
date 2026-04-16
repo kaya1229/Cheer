@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCT MeumMonBong UI</title>
+    <title>NCT MeumMonBong - Final Ratio</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@900&display=swap');
 
@@ -15,72 +15,87 @@
             height: 100vh;
             margin: 0;
             font-family: 'Noto Sans KR', sans-serif;
+            overflow: hidden;
         }
 
-        /* 믐뭔봉 전체 컨테이너 */
         .lightstick-container {
             position: relative;
-            width: 300px;
-            height: 300px;
+            width: 320px;
+            height: 380px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* [핵심] 믐뭔봉 외곽 틀 - 이미지의 상단/측면 굴곡 재현 */
+        /* [비율 교정] 믐뭔봉 틀 - 지적하신 비례 반영 */
         .meummonbong-frame {
             position: absolute;
             width: 100%;
             height: 100%;
-            /* 가장자리로 갈수록 진해지는 네오 그린 그라데이션 */
-            background: radial-gradient(circle, #faffd1 20%, #e8ff8c 60%, #cef13d 100%);
+            /* 가장자리로 갈수록 짙어지는 네오 그린 그라데이션 */
+            background: radial-gradient(circle, #faffd1 10%, #e8ff8c 50%, #cef13d 100%);
             
-            /* 이미지와 동일한 실루엣을 위한 정교한 커팅 */
+            /* 상단 돌출 너비 좁게 (40-60%)
+               좌우 돌출 높이 길게 (25-75%)
+               하단 너비 넓게 (15-85%)
+            */
             clip-path: polygon(
-                30% 0%, 70% 0%, 75% 5%, 85% 5%, 95% 15%, 95% 25%, 100% 30%, 100% 70%, 95% 75%, 95% 85%, 85% 95%, 75% 95%, 70% 100%, 30% 100%, 25% 95%, 15% 95%, 5% 85%, 5% 75%, 0% 70%, 0% 30%, 5% 25%, 5% 15%, 15% 5%, 25% 5%
+                /* 상단 좁은 돌출부 */
+                40% 0%, 60% 0%, 65% 3%, 
+                /* 우측 상단 깎인 모서리 */
+                85% 3%, 95% 10%, 
+                /* 우측 긴 돌출부 */
+                95% 25%, 100% 25%, 100% 75%, 95% 75%, 
+                /* 우측 하단 깎인 모서리 */
+                95% 90%, 85% 97%, 
+                /* 하단 넓은 너비 */
+                15% 97%, 5% 90%, 
+                /* 좌측 하단 깎인 모서리 */
+                5% 75%, 0% 75%, 0% 25%, 5% 25%, 
+                /* 좌측 긴 돌출부 및 상단 연결 */
+                5% 10%, 15% 3%, 35% 3%
             );
             
-            /* 틀 자체가 발광하는 듯한 부드러운 외곽 빛 효과 */
-            filter: drop-shadow(0 0 15px rgba(206, 241, 61, 0.6));
+            z-index: 5;
         }
 
-        /* 가장자리에서 밖으로 더 뻗어나가는 추가 광원 효과 */
-        .glow-spread {
+        /* 틀 경계에서 밖으로 강하게 뻗어나가는 빛 */
+        .glow-outer {
             position: absolute;
-            width: 110%;
-            height: 110%;
-            background: radial-gradient(circle, rgba(206, 241, 61, 0.4) 0%, rgba(206, 241, 61, 0) 70%);
-            z-index: -1;
-            filter: blur(20px);
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle, rgba(206, 241, 61, 0.6) 0%, rgba(206, 241, 61, 0) 75%);
+            z-index: 1;
+            filter: blur(40px); /* 뻗어나가는 느낌을 위해 블러 강화 */
         }
 
-        /* 중앙 글자 '가' - 이미지 폰트 스타일 재현 */
+        /* 중앙 글자 '가' */
         .display-text {
             position: relative;
             z-index: 10;
-            font-size: 150px;
+            font-size: 160px;
             font-weight: 900;
             color: #000000;
-            letter-spacing: -5px;
-            /* 텍스트가 묻히지 않도록 아주 미세한 흰색 광택 추가 */
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            letter-spacing: -8px;
+            /* 이미지처럼 글자에도 미세한 네온 잔상 추가 */
+            text-shadow: 0 0 15px rgba(206, 241, 61, 0.3);
         }
 
-        /* 92 BPM 박자에 맞춘 미세한 숨쉬기 효과 (눈이 아프지 않은 정도) */
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.02); opacity: 0.95; }
+        /* 삐그덕 비트(92 BPM)에 맞춘 부드러운 발광 애니메이션 */
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.03); filter: brightness(1.15); }
         }
 
-        .active-glow {
-            animation: breathe 0.65s infinite ease-in-out; /* 92 BPM 기준 */
+        .active {
+            animation: pulseGlow 0.65s infinite ease-in-out;
         }
     </style>
 </head>
 <body>
 
-    <div class="lightstick-container active-glow">
-        <div class="glow-spread"></div>
+    <div class="lightstick-container active">
+        <div class="glow-outer"></div>
         <div class="meummonbong-frame"></div>
         <div class="display-text">가</div>
     </div>
