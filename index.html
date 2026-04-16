@@ -3,102 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCT Online Lightstick</title>
+    <title>NCT Online Lightstick - iTunes API Edition</title>
     <style>
-        body { font-family: sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
-        .header { width: 100%; max-width: 350px; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
-        .info { font-size: 13px; color: #333; line-height: 1.6; }
-        .hashtag { color: #0066cc; font-size: 13px; margin-top: 10px; }
-        
-        /* 믐뭔봉 UI */
-        .lightstick-container {
-            width: 320px; height: 520px; background: #F3FFD5; border-radius: 20px;
-            position: relative; display: flex; flex-direction: column; align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;
-        }
-        .event-badge {
-            background: #CEF13D; color: #000; font-weight: bold; padding: 4px 12px;
-            border-radius: 4px; font-size: 12px; margin-top: 50px;
-        }
-        .event-text { font-size: 12px; text-align: center; margin-top: 10px; line-height: 1.4; }
-        
-        .frame {
-            width: 180px; height: 250px; background: linear-gradient(#E8FF8E, #CEF13D);
-            border-radius: 15px; margin-top: 40px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px rgba(206, 241, 61, 0.5);
-        }
-        .display-char { font-size: 100px; font-weight: bold; color: #000; }
-        
-        .volume-icon {
-            position: absolute; bottom: 20px; right: 20px; width: 30px; height: 30px;
-            background: #888; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;
-        }
+        body { font-family: 'Noto Sans KR', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+        .header { width: 100%; max-width: 360px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .info { font-size: 14px; color: #333; line-height: 1.6; }
 
-        /* 컨트롤러 */
-        .controls { margin-top: 20px; width: 100%; max-width: 350px; }
-        input, select, button { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        /* 믐먼봉 UI */
+        .meummonbong-frame { position: relative; width: 250px; height: 350px; margin: 20px 0; }
+        .meummonbong-shape {
+            width: 100%; height: 100%; background: #F3FFD5; position: absolute;
+            clip-path: polygon(10px 0, 80px 0, 80px -10px, 170px -10px, 170px 0, 240px 0, 250px 10px, 250px 80px, 260px 80px, 260px 170px, 250px 170px, 250px 340px, 240px 350px, 10px 350px, 0px 340px, 0px 170px, -10px 170px, -10px 80px, 0px 80px, 0px 10px, 10px 0);
+        }
+        .glow-effect {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 150%; height: 150%; background: radial-gradient(circle, rgba(206, 241, 61, 0.4) 10%, rgba(206, 241, 61, 0) 60%);
+            filter: blur(15px);
+        }
+        .display-char { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 130px; font-weight: 800; color: #000; }
+
+        /* 컨트롤 및 검색 */
+        .controls { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }
+        input, select, button { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
         button { background: #CEF13D; border: none; font-weight: bold; cursor: pointer; }
+        #songList { max-height: 150px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; display: none; background: #fafafa; }
+        .song-item { padding: 10px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .song-item:hover { background: #f0f0f0; }
+        .selected-info { font-size: 12px; color: #666; text-align: center; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="info">
-            📍 당첨자 발표 : 2026.4.29(수) (개별 DM)<br>
-            🎁 선물 : NCT 10주년 MD (인스타그램+X 총 10명, 품목 랜덤)
-        </div>
-        <div class="hashtag">#멜론 #NCT #NCT2026 #NCT_10TH_ANNIVERSARY</div>
+        <div class="info">📍 NCT Online Lightstick Player</div>
     </div>
 
-    <div class="lightstick-container">
-        <div class="event-badge">EVENT</div>
-        <div class="event-text">영상을 보고 NCT에게 전하는<br>10주년 축하 메시지를 맞춰 주세요🍀</div>
-        
-        <div class="frame">
-            <div id="display" class="display-char">가</div>
-        </div>
-        
-        <div class="volume-icon">🔊</div>
+    <div class="meummonbong-frame">
+        <div class="meummonbong-shape"><div class="glow-effect"></div></div>
+        <div id="display" class="display-char">가</div>
     </div>
 
     <div class="controls">
-        <input type="text" id="userInput" placeholder="문구를 입력하세요 (10-15자)" value="NCT와 시즈니 우리 평생 함께해">
-        <select id="songSelect">
-            <option value="138">NCT 127 - 영웅 (138 BPM)</option>
-            <option value="128">NCT DREAM - Beatbox (128 BPM)</option>
-            <option value="105">NCT U - Baggy Jeans (105 BPM)</option>
-            <option value="80">Slow Ballad (80 BPM)</option>
-        </select>
-        <button onclick="togglePlay()" id="playBtn">재생 시작</button>
+        <input type="text" id="userInput" placeholder="메시지 입력 (10~15자)" value="우리 평생 함께하자 시즈니">
+        
+        <button onclick="searchNctSongs()">NCT 노래 불러오기 (iTunes)</button>
+        <div id="songList"></div>
+        
+        <div id="currentSongDisplay" class="selected-info">선택된 곡 없음</div>
+        <button id="playBtn" onclick="togglePlay()" style="background: #000; color: #CEF13D;">재생 시작</button>
     </div>
+
+    <audio id="audioPlayer"></audio>
 
     <script>
         let interval;
         let isPlaying = false;
         let currentIndex = 0;
+        let currentBpm = 120; // 기본값
+        const audio = document.getElementById('audioPlayer');
 
-        function togglePlay() {
-            const btn = document.getElementById('playBtn');
-            if (isPlaying) {
-                clearInterval(interval);
-                btn.innerText = "재생 시작";
-            } else {
-                startLoop();
-                btn.innerText = "정지";
+        // 곡별 가상 BPM 매칭 데이터
+        const bpmMap = {
+            "Hello Future": 175,
+            "윤슬 (Gold Dust)": 84,
+            "영웅 (Kick It)": 138,
+            "Beatbox": 128,
+            "Baggy Jeans": 105,
+            "Candy": 122
+        };
+
+        // 1. iTunes API를 이용한 곡 검색
+        async function searchNctSongs() {
+            const songListDiv = document.getElementById('songList');
+            songListDiv.innerHTML = "<div class='song-item'>검색 중...</div>";
+            songListDiv.style.display = "block";
+
+            try {
+                // NCT 곡들 중 최신/인기곡 위주로 검색
+                const response = await fetch('https://itunes.apple.com/search?term=NCT&entity=song&limit=20');
+                const data = await response.json();
+                
+                songListDiv.innerHTML = "";
+                data.results.forEach(song => {
+                    const div = document.createElement('div');
+                    div.className = 'song-item';
+                    div.innerText = `${song.trackName} - ${song.artistName}`;
+                    div.onclick = () => selectSong(song);
+                    songListDiv.appendChild(div);
+                });
+            } catch (e) {
+                songListDiv.innerText = "곡을 불러오지 못했습니다.";
             }
-            isPlaying = !isPlaying;
         }
 
-        function startLoop() {
-            const text = document.getElementById('userInput').value.replace(/\s/g, '');
-            const bpm = document.getElementById('songSelect').value;
-            const ms = 60000 / bpm;
+        // 2. 곡 선택 시 오디오 및 BPM 설정
+        function selectSong(song) {
+            audio.src = song.previewUrl; // 30초 미리보기 음원
+            document.getElementById('currentSongDisplay').innerText = `선택됨: ${song.trackName}`;
+            document.getElementById('songList').style.display = "none";
+            
+            // 제목에 포함된 단어로 BPM 매칭, 없으면 120
+            currentBpm = 120;
+            for (let key in bpmMap) {
+                if (song.trackName.includes(key)) {
+                    currentBpm = bpmMap[key];
+                    break;
+                }
+            }
+            if (isPlaying) togglePlay(); // 이미 재생 중이면 껐다 켜기
+        }
 
-            clearInterval(interval);
-            interval = setInterval(() => {
-                document.getElementById('display').innerText = text[currentIndex];
-                currentIndex = (currentIndex + 1) % text.length;
-            }, ms);
+        // 3. 재생 로직
+        function togglePlay() {
+            const btn = document.getElementById('playBtn');
+            const text = document.getElementById('userInput').value.replace(/\s/g, '').split('');
+
+            if (isPlaying) {
+                clearInterval(interval);
+                audio.pause();
+                btn.innerText = "재생 시작";
+                isPlaying = false;
+            } else {
+                if (!audio.src) {
+                    alert("먼저 노래를 불러오고 선택해주세요!");
+                    return;
+                }
+                audio.play();
+                const ms = 60000 / currentBpm;
+                
+                interval = setInterval(() => {
+                    document.getElementById('display').innerText = text[currentIndex];
+                    currentIndex = (currentIndex + 1) % text.length;
+                }, ms);
+
+                btn.innerText = "정지";
+                isPlaying = true;
+            }
         }
     </script>
 </body>
