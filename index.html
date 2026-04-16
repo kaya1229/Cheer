@@ -3,50 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCT Online Lightstick - Perfect MeumMonBong</title>
+    <title>NCT Online Lightstick - Final Stable Version</title>
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; background: #fff; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        .header { width: 100%; max-width: 360px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .info { font-size: 13px; color: #333; line-height: 1.6; }
         
-        .header { width: 100%; max-width: 360px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; text-align: left; }
-        .info { font-size: 14px; color: #333; line-height: 1.6; }
-        .hashtag { color: #0066cc; font-size: 14px; margin-top: 10px; font-weight: bold; }
-        
-        /* --- 믐먼봉 실루엣 UI --- */
-        .meummonbong-frame {
-            position: relative; width: 250px; height: 350px; margin: 20px 0; overflow: hidden;
-        }
-
+        /* 믐먼봉 실루엣 (요청하신 이미지 형태 반영) */
+        .meummonbong-frame { position: relative; width: 250px; height: 350px; margin: 20px 0; }
         .meummonbong-shape {
-            width: 100%; height: 100%; background: #F3FFD5; position: absolute; top: 0; left: 0;
-            /* 이미지의 각진 형태를 그대로 반영한 clip-path */
-            clip-path: polygon(
-                0% 12%, 36% 12%, 36% 0%, 64% 0%, 64% 12%, 100% 12%, 100% 32%, 92% 32%, 92% 48%, 100% 48%, 100% 90%, 94% 100%, 6% 100%, 0% 90%, 0% 48%, 8% 48%, 8% 32%, 0% 32%
-            );
+            width: 100%; height: 100%; background: #F3FFD5; position: absolute;
+            clip-path: polygon(0% 12%, 36% 12%, 36% 0%, 64% 0%, 64% 12%, 100% 12%, 100% 32%, 92% 32%, 92% 48%, 100% 48%, 100% 90%, 94% 100%, 6% 100%, 0% 90%, 0% 48%, 8% 48%, 8% 32%, 0% 32%);
         }
-
         .glow-effect {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 140%; height: 140%; background: radial-gradient(circle, rgba(206, 241, 61, 0.5) 0%, rgba(206, 241, 61, 0) 70%);
             filter: blur(20px);
         }
+        .display-char { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 130px; font-weight: 900; color: #000; z-index: 2; }
 
-        .display-char {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 130px; font-weight: 900; color: #000; z-index: 2;
-        }
-
-        .volume-icon {
-            position: absolute; bottom: 20px; right: 20px; width: 32px; height: 32px;
-            background: rgba(0, 0, 0, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; z-index: 3;
-        }
-
-        /* --- 컨트롤 영역 --- */
+        /* 컨트롤 및 검색 */
         .controls { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }
-        input, button, select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; font-size: 15px; box-sizing: border-box; }
-        button { background: #CEF13D; border: none; font-weight: bold; cursor: pointer; color: #000; }
-        button:active { transform: scale(0.98); }
-        
-        #songList { max-height: 180px; overflow-y: auto; border: 1px solid #eee; border-radius: 12px; display: none; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        input, button { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; font-size: 15px; box-sizing: border-box; }
+        button { background: #CEF13D; border: none; font-weight: bold; cursor: pointer; }
+        #songList { max-height: 180px; overflow-y: auto; border: 1px solid #eee; border-radius: 12px; display: none; background: #fff; margin-top: 5px; }
         .song-item { padding: 12px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #f9f9f9; }
         .song-item:hover { background: #f3ffd5; }
         .selected-info { font-size: 13px; color: #888; text-align: center; margin: 5px 0; }
@@ -55,28 +35,23 @@
 <body>
 
     <div class="header">
-        <div class="info">
-            📍 당첨자 발표 : 2026.4.29(수)<br>
-            🎁 선물 : NCT 10주년 MD (인스타그램+X 랜덤 증정)
-        </div>
-        <div class="hashtag">#멜론 #NCT #NCT_10TH_ANNIVERSARY</div>
+        <div class="info">📍 NCT 10th Anniversary Project</div>
     </div>
 
     <div class="meummonbong-frame">
         <div class="meummonbong-shape"><div class="glow-effect"></div></div>
         <div id="display" class="display-char">N</div>
-        <div class="volume-icon">🔊</div>
     </div>
 
     <div class="controls">
-        <input type="text" id="userInput" placeholder="전광판 문구 입력" value="우리 평생 함께하자 시즈니 가">
-        <button onclick="searchNctSongs()" style="background: #000; color: #CEF13D;">NCT 노래 검색하기</button>
+        <input type="text" id="userInput" placeholder="문구 입력 (10~15자)" value="우리 평생 함께하자 시즈니 가">
+        <button onclick="searchNctSongs()" style="background: #000; color: #CEF13D;">노래 불러오기 (iTunes)</button>
         <div id="songList"></div>
-        <div id="currentSongDisplay" class="selected-info">노래를 검색하고 선택해주세요</div>
-        <button id="playBtn" onclick="togglePlay()">박자 맞춰 재생 시작</button>
+        <div id="currentSongDisplay" class="selected-info">노래를 선택해주세요</div>
+        <button id="playBtn" onclick="togglePlay()">재생 시작</button>
     </div>
 
-    <audio id="audioPlayer" loop crossOrigin="anonymous"></audio>
+    <audio id="audioPlayer" loop></audio>
 
     <script>
         let interval;
@@ -86,55 +61,56 @@
         const audio = document.getElementById('audioPlayer');
 
         const bpmMap = {
-            "Hello Future": 175,
-            "Gold Dust": 84, "윤슬": 84,
-            "영웅": 138, "Kick It": 138,
-            "Beatbox": 128, "Baggy Jeans": 105,
-            "Candy": 122, "Fact Check": 140, "Smoothie": 110
+            "Hello Future": 175, "Gold Dust": 84, "윤슬": 84, "영웅": 138, "Kick It": 138,
+            "Beatbox": 128, "Baggy Jeans": 105, "Candy": 122, "Fact Check": 140, "Smoothie": 110
         };
 
-        async function searchNctSongs() {
+        // --- 네트워크 오류 해결을 위한 JSONP 방식 함수 ---
+        function searchNctSongs() {
             const listDiv = document.getElementById('songList');
-            listDiv.innerHTML = "<div class='song-item'>노래 찾는 중...</div>";
+            listDiv.innerHTML = "<div class='song-item'>곡 찾는 중...</div>";
             listDiv.style.display = "block";
 
-            // 404 방지를 위해 가장 안정적인 글로벌 API 주소 사용
-            const url = `https://itunes.apple.com/search?term=NCT&entity=song&limit=20`;
+            // 기존 script 제거 후 새로 생성 (JSONP)
+            const oldScript = document.getElementById('itunesScript');
+            if (oldScript) oldScript.remove();
 
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                if (data.resultCount === 0) {
-                    listDiv.innerHTML = "<div class='song-item'>곡이 없습니다.</div>";
-                    return;
-                }
-
-                listDiv.innerHTML = "";
-                data.results.forEach(song => {
-                    const div = document.createElement('div');
-                    div.className = 'song-item';
-                    div.innerText = `${song.trackName} - ${song.artistName}`;
-                    div.onclick = () => {
-                        audio.src = song.previewUrl;
-                        document.getElementById('currentSongDisplay').innerText = `선택됨: ${song.trackName}`;
-                        listDiv.style.display = "none";
-                        
-                        // BPM 설정
-                        currentBpm = 120;
-                        for (let key in bpmMap) {
-                            if (song.trackName.includes(key)) {
-                                currentBpm = bpmMap[key];
-                                break;
-                            }
-                        }
-                    };
-                    listDiv.appendChild(div);
-                });
-            } catch (err) {
-                listDiv.innerHTML = "<div class='song-item'>네트워크 오류가 발생했습니다.</div>";
-            }
+            const script = document.createElement('script');
+            script.id = 'itunesScript';
+            // callback=handleResponse를 통해 네트워크 오류 우회
+            script.src = `https://itunes.apple.com/search?term=NCT&entity=song&limit=20&callback=handleResponse`;
+            document.body.appendChild(script);
         }
+
+        // API 응답 처리 콜백 함수
+        window.handleResponse = function(data) {
+            const listDiv = document.getElementById('songList');
+            if (!data.results || data.results.length === 0) {
+                listDiv.innerHTML = "<div class='song-item'>곡이 없습니다.</div>";
+                return;
+            }
+
+            listDiv.innerHTML = "";
+            data.results.forEach(song => {
+                const div = document.createElement('div');
+                div.className = 'song-item';
+                div.innerText = `${song.trackName} - ${song.artistName}`;
+                div.onclick = () => {
+                    audio.src = song.previewUrl;
+                    document.getElementById('currentSongDisplay').innerText = `선택됨: ${song.trackName}`;
+                    listDiv.style.display = "none";
+                    
+                    currentBpm = 120;
+                    for (let key in bpmMap) {
+                        if (song.trackName.includes(key)) {
+                            currentBpm = bpmMap[key];
+                            break;
+                        }
+                    }
+                };
+                listDiv.appendChild(div);
+            });
+        };
 
         function togglePlay() {
             const btn = document.getElementById('playBtn');
@@ -143,19 +119,16 @@
             if (isPlaying) {
                 clearInterval(interval);
                 audio.pause();
-                btn.innerText = "박자 맞춰 재생 시작";
+                btn.innerText = "재생 시작";
                 isPlaying = false;
             } else {
                 if (!audio.src) return alert("노래를 먼저 선택하세요!");
-                
                 audio.play();
                 const ms = 60000 / currentBpm;
-                
                 interval = setInterval(() => {
                     document.getElementById('display').innerText = text[currentIndex];
                     currentIndex = (currentIndex + 1) % text.length;
                 }, ms);
-
                 btn.innerText = "정지";
                 isPlaying = true;
             }
