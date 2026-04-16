@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NCT MeumMonBong - Final Calibration</title>
+    <title>NCT MeumMonBong - Text Edit Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@900&display=swap');
 
         body {
             background-color: #ffffff;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -18,52 +19,34 @@
             overflow: hidden;
         }
 
-        /* [비율 수정] 전체 높이를 줄여 정사각에 가까운 묵직한 비율로 변경 */
+        /* 믐뭔봉 컨테이너 - 정사각에 가까운 묵직한 비율 */
         .lightstick-container {
             position: relative;
-            width: 360px; /* 너비 확장 */
-            height: 340px; /* 높이 축소 */
+            width: 360px;
+            height: 340px;
             display: flex;
             justify-content: center;
             align-items: center;
+            margin-bottom: 30px;
         }
 
-        /* [핵심] 믐뭔봉 틀 - 좌우 돌출부 너비 확장 및 상단 너비 재조정 */
+        /* 믐뭔봉 틀 - 좌우 확장 및 상단 좁은 돌출부 */
         .meummonbong-frame {
             position: absolute;
             width: 100%;
             height: 100%;
-            /* [색상 수정] 노란색 제거, 순수 네오 그린(#CEF13D) 기반 그라데이션 */
             background: radial-gradient(circle, #E8FFB1 5%, #D7FF4D 40%, #CEF13D 100%);
-            
-            /* 지적하신 비율 완벽 반영:
-               - 상단 좁은 돌출부 (43% - 57%)
-               - 좌우 돌출부 너비 확장 (0%, 100% 끝까지 채움)
-               - 하단 묵직하고 넓은 베이스
-            */
             clip-path: polygon(
-                /* 상단 좁은 돌출 */
-                43% 0%, 57% 0%, 62% 4%, 
-                /* 우측 상단 */
-                88% 4%, 93% 10%, 
-                /* 우측 확장된 돌출부 */
+                43% 0%, 57% 0%, 62% 4%, 88% 4%, 93% 10%, 
                 93% 22%, 100% 22%, 100% 78%, 93% 78%, 
-                /* 우측 하단 */
-                93% 90%, 88% 96%, 
-                /* 하단 넓은 바닥 */
-                12% 96%, 7% 90%, 
-                /* 좌측 확장된 돌출부 */
+                93% 90%, 88% 96%, 12% 96%, 7% 90%, 
                 7% 78%, 0% 78%, 0% 22%, 7% 22%, 
-                /* 좌측 상단 및 연결 */
                 7% 10%, 12% 4%, 38% 4%
             );
-            
             z-index: 5;
-            /* 선명한 외곽선을 위해 미세한 보더 효과 */
-            outline: 1px solid rgba(206, 241, 61, 0.5);
         }
 
-        /* [색상 수정] 밖으로 퍼지는 빛도 노란 끼 없는 네오 그린 적용 */
+        /* 네오 그린 발광 효과 */
         .glow-outer {
             position: absolute;
             width: 150%;
@@ -73,21 +56,47 @@
             filter: blur(50px);
         }
 
-        /* 중앙 글자 '가' */
+        /* 중앙 전광판 텍스트 */
         .display-text {
             position: relative;
             z-index: 10;
-            font-size: 170px; /* 비율에 맞춰 글자 크기 최적화 */
+            font-size: 160px;
             font-weight: 900;
             color: #000000;
             letter-spacing: -10px;
             text-shadow: 0 0 20px rgba(206, 241, 61, 0.4);
+            transition: all 0.1s ease-in-out;
         }
 
-        /* 삐그덕 비트(92 BPM) 호흡 애니메이션 */
+        /* 입력창 디자인 */
+        .input-section {
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input {
+            padding: 12px 20px;
+            font-size: 18px;
+            border: 2px solid #CEF13D;
+            border-radius: 30px;
+            outline: none;
+            text-align: center;
+            width: 250px;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .tip {
+            font-size: 14px;
+            color: #888;
+        }
+
+        /* 기본 리듬 호흡 애니메이션 (92 BPM) */
         @keyframes walkBpm {
             0%, 100% { transform: scale(1); filter: brightness(1); }
-            50% { transform: scale(1.02); filter: brightness(1.2); }
+            50% { transform: scale(1.03); filter: brightness(1.2); }
         }
 
         .active {
@@ -97,11 +106,43 @@
 </head>
 <body>
 
-    <div class="lightstick-container active">
+    <div id="container" class="lightstick-container active">
         <div class="glow-outer"></div>
         <div class="meummonbong-frame"></div>
-        <div class="display-text">가</div>
+        <div id="displayText" class="display-text">가</div>
     </div>
+
+    <div class="input-section">
+        <input type="text" id="textInput" placeholder="문구를 입력하세요" value="가">
+        <div class="tip">입력하면 실시간으로 문구가 바뀝니다</div>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const displayText = document.getElementById('displayText');
+        let textArray = ["가"];
+        let currentIndex = 0;
+
+        // 입력창 내용 변경 감지
+        textInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            if (val.length > 0) {
+                textArray = val.split('');
+                currentIndex = 0;
+                displayText.innerText = textArray[currentIndex];
+            } else {
+                displayText.innerText = "";
+            }
+        });
+
+        // 92 BPM 리듬에 맞춰 글자 자동 전환 (약 0.65초)
+        setInterval(() => {
+            if (textArray.length > 1) {
+                currentIndex = (currentIndex + 1) % textArray.length;
+                displayText.innerText = textArray[currentIndex];
+            }
+        }, 650);
+    </script>
 
 </body>
 </html>
